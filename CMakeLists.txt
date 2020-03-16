@@ -6,4 +6,5 @@ project (imClient)
 # 添加子目录
 add_subdirectory(libNetwork)
 add_subdirectory(libOpenssl)
+add_subdirectory(libSql)
 add_subdirectory(test)
