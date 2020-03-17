@@ -1,15 +1,15 @@
-ï»¿// libSql.cpp : å®šä¹‰é™æ€åº“çš„å‡½æ•°ã€‚
-//
 #include <iostream>
 #include <assert.h>
 #include <stdarg.h>
 #include <regex>
 
-#include "db/sqlite3.h"
-#include "libSql.h"
+#include "msqlite.h"
 
-namespace bm{
-namespace sqlite {
+namespace bm {
+namespace sql
+{
+namespace sqlite
+{
     mutex g_sqlite_db_mutex;
     string g_sqlitePath = "database/database.db";
     string _aesKey = "0123456789abcdef";
@@ -21,7 +21,7 @@ namespace sqlite {
         memset(path, 0, 256);
         _get_pgmptr(&path);
         exePath = path;
-        // å†…å­˜æ³„æ¼
+        // ÄÚ´æĞ¹Â©
         //delete[] path;
 
         regex reg("\\\\");
@@ -30,19 +30,19 @@ namespace sqlite {
         string::size_type pos = exePath.rfind("/");
         if (pos != string::npos)
             exePath = exePath.substr(0, pos);
-        
+
         return exePath;
     }
     static int callback(void* result, int argc, char** argv, char** colName)
     {
-        SqliteResult* results = NULL;
+        SqlResult* results = NULL;
         if (result)
-            results = (SqliteResult*)result;
+            results = (SqlResult*)result;
 
         if (results)
         {
             vector<string> tmp;
-            if(results->m_vecIds.empty())
+            if (results->m_vecIds.empty())
                 for (int i = 0; i < argc; i++)
                 {
                     results->m_vecIds.push_back(colName[i]);
@@ -76,8 +76,8 @@ namespace sqlite {
         r = sqlite3_rekey(m_database, _aesKey.c_str(), _aesKeyLen);
         if (SQLITE_NOTADB == r)
             r = sqlite3_key(m_database, _aesKey.c_str(), _aesKeyLen);
-        
-        if(r)
+
+        if (r)
             return r;
 #endif
         m_bValid = true;
@@ -96,15 +96,15 @@ namespace sqlite {
         if (m_cErrorMsg)
             delete[] m_cErrorMsg;
     }
-    int SqliteOperate::ExecSql(const string& sql, SqliteResult& result)
+    int SqliteOperate::ExecSql(const string& sql, SqlResult& result)
     {
         return ExecSql(sql.c_str(), result);
     }
-    int SqliteOperate::ExecSql(const char* sql, SqliteResult& result)
+    int SqliteOperate::ExecSql(const char* sql, SqlResult& result)
     {
         return ExecSql(sql, callback, &result);
     }
-    int SqliteOperate::ExecSql(const char* sql, int (*callback)(void*, int, char**, char**), SqliteResult* result)
+    int SqliteOperate::ExecSql(const char* sql, int (*callback)(void*, int, char**, char**), SqlResult* result)
     {
         lock_guard<mutex> lock(g_sqlite_db_mutex);
         int r = sqlite3_exec(m_database, sql, callback, result, &m_cErrorMsg);
@@ -130,16 +130,16 @@ namespace sqlite {
         return r;
     }
 
-    // æ‰§è¡Œsqlè¯­å¥
-    int execSql(const string& sql, SqliteResult& result)
+    // Ö´ĞĞsqlÓï¾ä
+    int execSql(const string& sql, SqlResult& result)
     {
         return execSql(sql.c_str(), result);
     }
-    int execSql(const char* sql, SqliteResult& result)
+    int execSql(const char* sql, SqlResult& result)
     {
         return execSql(sql, &result, callback);
     }
-    int execSql(const char* sql, SqliteResult* result, int(*callback)(void*, int, char**, char**), SqliteOperate* operate)
+    int execSql(const char* sql, SqlResult* result, int(*callback)(void*, int, char**, char**), SqliteOperate* operate)
     {
         SqliteOperate* op = NULL;
         if (operate)
@@ -154,7 +154,7 @@ namespace sqlite {
         return r;
     }
 
-    int execSql(const string& sql, SqliteResult& result, const string& dbPath)
+    int execSql(const string& sql, SqlResult& result, const string& dbPath)
     {
         SqliteOperate* op = new SqliteOperate(dbPath, "connect select");
 
@@ -187,13 +187,13 @@ namespace sqlite {
         return r;
     }
 
-    // ä»æŸä¸ªè¡¨ä¸­æŸ¥è¯¢ç›¸åº”çš„å€¼
+    // ´ÓÄ³¸ö±íÖĞ²éÑ¯ÏàÓ¦µÄÖµ
     //string selectResult(const string& tableName, const string& selectKey, const string& conditionKey, const string& conditionValue);
     int selectResult(const string& tableName, const string& selectKey, const string& conditionKey, const string& conditionValue, vector<string>& results)
     {
         char sql[256] = { 0 };
         sprintf_s(sql, "SELECT %s FROM %s WHERE %s='%s'", selectKey.c_str(), tableName.c_str(), conditionKey.c_str(), conditionValue.c_str());
-        SqliteResult result;
+        SqlResult result;
 
         int r = execSql(sql, result);
         if (SQLITE_OK != r)
@@ -206,7 +206,7 @@ namespace sqlite {
         return r;
     }
 
-    // æ›´æ–°æ•°æ®åˆ°æ•°æ®åº“
+    // ¸üĞÂÊı¾İµ½Êı¾İ¿â
     int update(const string& tableName, const string& opKey, const string& opValue, const string& conditionKey, const string& conditionValue)
     {
         char sql[256] = { 0 };
@@ -217,7 +217,7 @@ namespace sqlite {
 
         return r;
     }
-    // æ›´æ–°ä¸€æ¡æ•°æ®çš„å¤šä¸ªåˆ—çš„å€¼
+    // ¸üĞÂÒ»ÌõÊı¾İµÄ¶à¸öÁĞµÄÖµ
     int update(const string& tableName, const vector<string>& opKeys, const vector<string>& opValues, const string& conditionKey, const string& conditionValue)
     {
         string strSet;
@@ -254,7 +254,7 @@ namespace sqlite {
         int r = execSql(sqlTmp.c_str(), NULL, NULL, op);
         if (isTransaction && r)
             op->Rollback();
-            
+
         return r;
     }
     int _updates(const string& tableName, const vector<string>& opKeys, const vector<string>& opValues,
@@ -292,7 +292,7 @@ namespace sqlite {
 
         assert(opKeys.size() == opValues.size());
         assert(opKeys.size() == conditionValues.size());
-        
+
         int r = 0;
 
         if (isTranslation)
@@ -311,7 +311,7 @@ namespace sqlite {
         delete op;
         return 0;
     }
-    // æ›´æ–°å¤šæ¡æ•°æ®çš„åŒä¸€ä¸ªå­—æ®µçš„å€¼
+    // ¸üĞÂ¶àÌõÊı¾İµÄÍ¬Ò»¸ö×Ö¶ÎµÄÖµ
     int updates(const string& tableName, const string& opKey, const vector<string>& opValues,
         const string& conditionKey, const vector<string> conditionValues)
     {
@@ -324,7 +324,7 @@ namespace sqlite {
             op->Translation();
 
         int r = _updates(tableName, opKey, opValues, conditionKey, conditionValues, op, isTranslation);
-        
+
         if (!r && isTranslation)
             op->Commit();
 
@@ -332,27 +332,28 @@ namespace sqlite {
         return r;
     }
 
-    // æ•°æ®åº“é”™è¯¯ç 
+    // Êı¾İ¿â´íÎóÂë
     string sqliteError(int errorCode)
     {
         string r;
         switch (errorCode)
         {
         case SQLITE_BUSY:
-            r = "æ•°æ®åº“æ–‡ä»¶è¢«é”";
+            r = "Êı¾İ¿âÎÄ¼ş±»Ëø";
             break;
         case SQLITE_LOCKED:
-            r = "æ•°æ®åº“è¡¨è¢«é”";
+            r = "Êı¾İ¿â±í±»Ëø";
             break;
         case SQLITE_CONSTRAINT:
-            r = "æ•°æ®å†²çª";
+            r = "Êı¾İ³åÍ»";
             break;
         default:
-            r = "å…¶ä»–é”™è¯¯";
+            r = "ÆäËû´íÎó";
             break;
         }
 
         return r;
     }
+}
 }
 }

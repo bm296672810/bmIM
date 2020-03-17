@@ -1,7 +1,9 @@
 #include <iostream>
+
 #include "libOpenssl.h"
 #include "client.h"
 #include "server.h"
+#include "libSql.h"
 
 #ifndef M_SLEEP
 #include <thread>
@@ -49,6 +51,28 @@ int main(int argc, char *argv[])
 
     server* s = new winServer();
     
+    //bm::sql::mysql::SqlOperate op("bm", "bm12345", "192.168.183.129");
+    bm::sql::SqlResult result;
+    string sql = "insert into t_users values(NULL, 'bm1234567', 'bmTest', '17665319084', '296672810@qq.com', NULL, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP);";
+    //unsigned int er = op.ExecSql(sql, result);
+    int er = bm::sql::mysql::initConnectPool("bm", "bm12345", "192.168.183.129", 3306, 50);
+        er = bm::sql::mysql::execSql(sql, result);
+    string sql1 = "select * from t_users";
+    for (int i = 0; i < 500; i++)
+    {
+        (new thread([&]() {
+            string sql2 = sql1;
+            bm::sql::SqlResult result;
+            while (true)
+            {
+                int e = bm::sql::mysql::execSql(sql2, result);
+
+                cout << "thread id:" << std::this_thread::get_id() << " execSql result:" << e << endl;
+
+                M_SLEEP(1000);
+            }
+        }))->detach();
+    }
     while (true)
     {
         bool br = false;// sendData(ip, port, data);
@@ -57,5 +81,6 @@ int main(int argc, char *argv[])
         M_SLEEP(5000);
     }
 
+    bm::sql::mysql::releseConnectPool();
 	return 0;
 }

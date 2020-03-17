@@ -10,7 +10,18 @@ ELSE(CMAKE_CL_64)
     set(platform x86)
 ENDIF(CMAKE_CL_64)
 
-set(LIBS libcrypto_static.lib libssl_static.lib)
+if(WIN32)
+    set(MYSQL_ROOT_PATH "C:/Program Files/MySQL/MySQL Server 8.0")
+    set(RELEASE_LIBS ${MYSQL_ROOT_PATH}/lib/libmysql.lib)
+elseif(APPLE)
+    set(MYSQL_ROOT_PATH "C:/Program Files/MySQL/MySQL Server 8.0")
+    set(RELEASE_LIBS ${MYSQL_ROOT_PATH}/lib/libmysql.a)
+elseif(UNIX)
+    set(MYSQL_ROOT_PATH "C:/Program Files/MySQL/MySQL Server 8.0")
+    set(RELEASE_LIBS ${MYSQL_ROOT_PATH}/lib/libmysql.a)
+endif()
+
+set(LIBS libcrypto_static.lib libssl_static.lib ${RELEASE_LIBS})
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/../libOpenssl/lib")
 link_libraries(${LIBS})
 
@@ -24,9 +35,11 @@ include_directories(
 ${CMAKE_CURRENT_SOURCE_DIR}/../libNetwork
 ${CMAKE_CURRENT_SOURCE_DIR}/../libOpenssl
 ${CMAKE_CURRENT_SOURCE_DIR}/../libOpenssl/include
+${CMAKE_CURRENT_SOURCE_DIR}/../libSql
+"${MYSQL_ROOT_PATH}/include"
 )
 # 添加链接库
-target_link_libraries(test libNetwork libOpenssl)
+target_link_libraries(test libNetwork libOpenssl libSql)
 
 if(MSVC)
   # Force to always compile with W4
