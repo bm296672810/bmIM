@@ -70,7 +70,7 @@ int winServer::initServer()
                 break;
             }
             if(s_bAcceptThread)
-                processAccept(sClient);
+                processAccept(sClient, m_process);
         }
     }));
     
@@ -78,9 +78,10 @@ int winServer::initServer()
 
     return sockError::success;
 }
-void winServer::processAccept(mSOCKET clientSock)
+void winServer::processAccept(mSOCKET clientSock, process pro)
 {
     std::shared_ptr<std::thread> s(new std::thread([&] {
+        process tmpPro = pro;
         SOCKET tmpClient = clientSock;
         char* buf = new char[BUF_SIZE + 1];
         memset(buf, 0, BUF_SIZE + 1);
@@ -93,10 +94,12 @@ void winServer::processAccept(mSOCKET clientSock)
             std::cout << "recv size:" << r << std::endl;
         } while (r >= BUF_SIZE);
 
-        send(tmpClient, result.c_str(), (int)result.length(), 0);
+        if (tmpPro)
+            tmpPro(result, clientSock);
+        //send(tmpClient, result.c_str(), (int)result.length(), 0);
 
-        closesocket(tmpClient);
-        std::cout << result << std::endl;
+        //closesocket(tmpClient);
+        //std::cout << result << std::endl;
     }));
 
     s->detach();

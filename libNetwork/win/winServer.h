@@ -10,6 +10,6 @@ public:
     ~winServer();
 protected:
     virtual int initServer();
-    virtual void processAccept(mSOCKET clientSock);
+    virtual void processAccept(mSOCKET clientSock, process pro);
 };
 #endif

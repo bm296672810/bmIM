@@ -1,4 +1,5 @@
 #include "mmysql.h"
+
 namespace bm
 {
 namespace sql
@@ -169,8 +170,19 @@ namespace mysql
             SqlOperate* tmp = g_mysqlConnectPool->GetOperate();
             if (tmp)
             {
-                unsigned int r = tmp->ExecSql(sql, result);
-
+                unsigned int r = 0;
+                vector<string> sqls = bm::sql::StringSplit(sql, ";");
+                for (size_t i = 0; i < sqls.size(); i++)
+                {
+                    result.clear();
+                    unsigned int r = tmp->ExecSql(sqls.at(i), result);
+                    if (r)
+                    {
+                        g_mysqlConnectPool->BackOperate(tmp);
+                        return r;
+                    }
+                }
+                
                 g_mysqlConnectPool->BackOperate(tmp);
 
                 return r;
