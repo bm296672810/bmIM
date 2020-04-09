@@ -4,8 +4,8 @@ set(PROJECT_NAME bmServer)
 project (${PROJECT_NAME})
 # 查找当前目录下的所有源文件
 # 并将名称保存到 DIR_SRCS 变量
-FILE (GLOB ALL_SOURCES "*.cpp" "*.c" "sql/*.c" "sql/*.cpp" )
-FILE (GLOB ALL_INCLUDES "*.hpp" "*.h" "sql/*.h" "common/*.h" )
+FILE (GLOB ALL_SOURCES "*.cpp" "*.c" "sql/*.c" "sql/*.cpp" "connect/*.cpp" )
+FILE (GLOB ALL_INCLUDES "*.hpp" "*.h" "sql/*.h" "common/*.h" "connect/*.h" )
 SET(ALL_FILES ${ALL_SOURCES} ${ALL_INCLUDES})
 # aux_source_directory(. DIR_SRCS)
 
@@ -41,10 +41,11 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../libNetwork
 ${CMAKE_CURRENT_SOURCE_DIR}/../libOpenssl
 ${CMAKE_CURRENT_SOURCE_DIR}/../libOpenssl/include
 ${CMAKE_CURRENT_SOURCE_DIR}/../libSql
+${CMAKE_CURRENT_SOURCE_DIR}/../libJson
 "${MYSQL_ROOT_PATH}/include"
 )
 # 添加链接库
-target_link_libraries(${PROJECT_NAME} libNetwork libOpenssl libSql)
+target_link_libraries(${PROJECT_NAME} libNetwork libOpenssl libSql libJson)
 
 if(MSVC)
   # Force to always compile with W4
