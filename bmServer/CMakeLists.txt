@@ -37,6 +37,7 @@ add_executable(${PROJECT_NAME} ${ALL_FILES})
 #message(${COMM_LIB})
 #message("type:${CMAKE_BUILD_TYPE}")
 include_directories(
+${CMAKE_CURRENT_SOURCE_DIR}
 ${CMAKE_CURRENT_SOURCE_DIR}/../libNetwork
 ${CMAKE_CURRENT_SOURCE_DIR}/../libOpenssl
 ${CMAKE_CURRENT_SOURCE_DIR}/../libOpenssl/include

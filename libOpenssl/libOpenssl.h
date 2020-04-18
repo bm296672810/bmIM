@@ -7,8 +7,8 @@
 
 namespace bm {
 int makeRSAKey(const std::string& privatePath, const std::string& publicPath, int bits);
-int encryptRSA(const std::string& from, std::string& to, const std::string& publicKeyPath);
-int decryptRSA(const std::string& from, std::string& to, const std::string& privateKeyPath);
+int encryptRSA(const std::string& from, std::string& to, const std::string& keyPath, bool isPublic);
+int decryptRSA(const std::string& from, std::string& to, const std::string& keyPath, bool isPublic);
 int encryptBase64(const std::string& from, std::string& to, bool newLine);
 int decryptBase64(const std::string& from, std::string& to, bool newLine);
 }

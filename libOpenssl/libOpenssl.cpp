@@ -10,15 +10,15 @@ int makeRSAKey(const std::string& privatePath, const std::string& publicPath, in
     int r = BN_set_word(b1, RSA_F4);
     if (!r)
     {
-        free(rsa);
-        free(b1);
+        RSA_free(rsa);
+        BN_free(b1);
         return -1;
     }
     r = RSA_generate_key_ex(rsa, bits, b1, NULL);
     if (!r)
     {
-        free(rsa);
-        free(b1);
+        RSA_free(rsa);
+        BN_free(b1);
         return -1;
     }
 
@@ -28,13 +28,13 @@ int makeRSAKey(const std::string& privatePath, const std::string& publicPath, in
         r = PEM_write_bio_RSAPrivateKey(bp_private, rsa, NULL, NULL, 0, NULL, NULL);
         if (!r)
         {
-            free(bp_private);
-            free(rsa);
-            free(b1);
+            BIO_free(bp_private);
+            RSA_free(rsa);
+            BN_free(b1);
             return -1;
         }
         else
-            free(bp_private);
+            BIO_free(bp_private);
     }
 
     if (!publicPath.empty())
@@ -43,24 +43,24 @@ int makeRSAKey(const std::string& privatePath, const std::string& publicPath, in
         r = PEM_write_bio_RSAPublicKey(bp_public, rsa);
         if (!r)
         {
-            free(bp_public);
-            free(rsa);
-            free(b1);
+            BIO_free(bp_public);
+            RSA_free(rsa);
+            BN_free(b1);
             return -1;
         }
         else
-            free(bp_public);
+            BIO_free(bp_public);
     }
 
     return 0;
 }
 
-int encryptRSA(const std::string& from, std::string& to, const std::string& publicKeyPath)
+int encryptRSA(const std::string& from, std::string& to, const std::string& publicKeyPath, bool isPublic)
 {
     char* encrypted_data = NULL;
     RSA* rsa_key = NULL;
     FILE* file = NULL;
-    int length = 0;
+    int srcLength = 0;
     if (fopen_s(&file, publicKeyPath.c_str(), "rb") != 0)
         return -1;
 
@@ -76,27 +76,63 @@ int encryptRSA(const std::string& from, std::string& to, const std::string& publ
         return -1;
     }
 
-    length = (int)from.length();
+    srcLength = (int)from.length();
     int rsaLen = RSA_size(rsa_key);
-    encrypted_data = new char[rsaLen + (int)1];
+    encrypted_data = new char[rsaLen];
     if (!encrypted_data)
     {
         fclose(file);
         BIO_free(bp);
         return -1;
     }
-    memset(encrypted_data, 0, rsaLen + (int)1);
+    memset(encrypted_data, 0, rsaLen);
+    int offset = 0;
+    int dataLen = rsaLen;
+    if (srcLength > rsaLen)
+        dataLen = rsaLen - RSA_PKCS1_PADDING_SIZE;
 
-    if (RSA_public_encrypt(length, (const unsigned char*)from.c_str(), (unsigned char*)encrypted_data, rsa_key, RSA_PKCS1_PADDING) < 0)
+    std::string tmp;
+    do
     {
-        delete[] encrypted_data;
-        RSA_free(rsa_key);
-        fclose(file);
-        BIO_free(bp);
-        return -1;
-    }
+        if (srcLength > rsaLen)
+        {
+            std::string t = from.substr(offset, dataLen);
+            int r = (isPublic ? RSA_public_encrypt : RSA_private_encrypt)(dataLen, (const unsigned char*)t.c_str(), (unsigned char*)encrypted_data, rsa_key, RSA_PKCS1_PADDING);
+            if (r < 0)
+            {
+                delete[] encrypted_data;
+                RSA_free(rsa_key);
+                fclose(file);
+                BIO_free(bp);
+                return -1;
+            }
+            else
+            {
+                tmp += std::string(encrypted_data, r);
 
-    to = std::string(encrypted_data, rsaLen);
+                memset(encrypted_data, 0, rsaLen);
+                offset += dataLen;
+            }
+
+        }
+        else
+        {
+            int r = (isPublic ? RSA_public_encrypt : RSA_private_encrypt)(dataLen, (const unsigned char*)from.substr(offset, dataLen).c_str(), (unsigned char*)encrypted_data, rsa_key, RSA_PKCS1_PADDING);
+            if (r < 0)
+            {
+                delete[] encrypted_data;
+                RSA_free(rsa_key);
+                fclose(file);
+                BIO_free(bp);
+                return -1;
+            }
+            else
+                tmp += std::string(encrypted_data, r);
+        }
+    } while (offset < srcLength);
+
+    to = tmp;
+
     delete[] encrypted_data;
     RSA_free(rsa_key);
     fclose(file);
@@ -104,7 +140,8 @@ int encryptRSA(const std::string& from, std::string& to, const std::string& publ
 
     return 0;
 }
-int decryptRSA(const std::string& from, std::string& to, const std::string& privateKeyPath)
+
+int decryptRSA(const std::string& from, std::string& to, const std::string& privateKeyPath, bool isPublic)
 {
     char* decrypted_data = NULL;
     RSA* rsa_key = NULL;
@@ -127,21 +164,38 @@ int decryptRSA(const std::string& from, std::string& to, const std::string& priv
         return -1;
 
     int rsaLen = RSA_size(rsa_key);
-    decrypted_data = new char[rsaLen + (int)1];
+    decrypted_data = new char[rsaLen];
     if (!decrypted_data)
         return -1;
-    memset(decrypted_data, 0, rsaLen + (int)1);
-
-    if (RSA_private_decrypt(rsaLen, (unsigned char*)from.c_str(), (unsigned char*)decrypted_data, rsa_key, RSA_PKCS1_PADDING) < 0)
+    memset(decrypted_data, 0, rsaLen);
+    int srcLength = (int)from.size();
+    int offset = 0;
+    std::string tmp;
+    do
     {
-        delete[] decrypted_data;
-        RSA_free(rsa_key);
-        fclose(file);
-        BIO_free(bp);
-        return -1;
-    }
+        if (srcLength > rsaLen)
+        {
+            int r = (isPublic ? RSA_public_decrypt : RSA_private_decrypt)(rsaLen, (unsigned char*)from.substr(offset, rsaLen).c_str(), (unsigned char*)decrypted_data, rsa_key, RSA_PKCS1_PADDING);
+            if (r <= 0)
+                return -1;
 
-    to = std::string(decrypted_data);
+            tmp += std::string(decrypted_data, r);
+            offset += rsaLen;
+
+            memset(decrypted_data, 0, rsaLen);
+        }
+        else
+        {
+            int r = (isPublic ? RSA_public_decrypt : RSA_private_decrypt)(rsaLen, (unsigned char*)from.c_str(), (unsigned char*)decrypted_data, rsa_key, RSA_NO_PADDING);
+            if (!r)
+                return -1;
+
+            tmp += std::string(decrypted_data, r);
+            offset += rsaLen;
+        }
+    } while (offset < srcLength);
+
+    to = tmp;
     delete[] decrypted_data;
     RSA_free(rsa_key);
     fclose(file);
@@ -194,10 +248,10 @@ int decryptBase64(const std::string& from, std::string& to, bool newLine)
     }
     bmem = BIO_new_mem_buf(from.c_str(), (int)from.length());
     bmem = BIO_push(b64, bmem);
-    BIO_read(bmem, buff, (int)from.length());
+    int r = BIO_read(bmem, buff, (int)from.length());
     BIO_free_all(bmem);
 
-    to = std::string(buff, from.length());
+    to = std::string(buff, r);
     free(buff);
 
     return 0;
