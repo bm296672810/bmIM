@@ -1,9 +1,9 @@
-#include "libOpenssl.h"
+#include "lib_openssl.h"
 
 #include <iostream>
 
 namespace bm {
-int makeRSAKey(const std::string& privatePath, const std::string& publicPath, int bits)
+int make_RSA_key(const std::string& privatePath, const std::string& publicPath, int bits)
 {
     RSA* rsa = RSA_new();
     BIGNUM* b1 = BN_new();
@@ -55,7 +55,7 @@ int makeRSAKey(const std::string& privatePath, const std::string& publicPath, in
     return 0;
 }
 
-int encryptRSA(const std::string& from, std::string& to, const std::string& publicKeyPath, bool isPublic)
+int encrypt_RSA(const std::string& from, std::string& to, const std::string& publicKeyPath, bool isPublic)
 {
     char* encrypted_data = NULL;
     RSA* rsa_key = NULL;
@@ -141,7 +141,7 @@ int encryptRSA(const std::string& from, std::string& to, const std::string& publ
     return 0;
 }
 
-int decryptRSA(const std::string& from, std::string& to, const std::string& privateKeyPath, bool isPublic)
+int decrypt_RSA(const std::string& from, std::string& to, const std::string& privateKeyPath, bool isPublic)
 {
     char* decrypted_data = NULL;
     RSA* rsa_key = NULL;
@@ -203,7 +203,7 @@ int decryptRSA(const std::string& from, std::string& to, const std::string& priv
 
     return 0;
 }
-int encryptBase64(const std::string& from, std::string& to, bool newLine)
+int encrypt_base64(const std::string& from, std::string& to, bool newLine)
 {
     BIO* bmem = NULL;
     BIO* b64 = NULL;
@@ -233,7 +233,7 @@ int encryptBase64(const std::string& from, std::string& to, bool newLine)
 
     return 0;
 }
-int decryptBase64(const std::string& from, std::string& to, bool newLine)
+int decrypt_base64(const std::string& from, std::string& to, bool newLine)
 {
     BIO* b64 = NULL;
     BIO* bmem = NULL;

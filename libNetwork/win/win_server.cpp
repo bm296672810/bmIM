@@ -1,4 +1,4 @@
-#include "winServer.h"
+#include "win_server.h"
 
 #include <thread>
 #include <memory>
@@ -8,24 +8,24 @@
 #include <WinSock2.h>
 #include<Ws2tcpip.h>
 
-winServer::~winServer()
+win_server::~win_server()
 {
-    s_bAcceptThread = false;
+    s_baccept_thread = false;
 
     closesocket(m_socket);   //关闭套接字
     WSACleanup();            //释放套接字资源;
 }
-int winServer::initServer()
+int win_server::init_server()
 {
     WSADATA wsd;
     if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0)
-        return sockError::initError;
+        return sock_error::init_error;
 
     m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (INVALID_SOCKET == m_socket)
     {
         WSACleanup();//释放套接字资源;
-        return sockError::createSocketError;
+        return sock_error::createSocket_error;
     }
 
     struct sockaddr_in* addr = (struct sockaddr_in*) malloc(sizeof(struct sockaddr_in));
@@ -37,14 +37,14 @@ int winServer::initServer()
         addr->sin_port = htons((unsigned short)m_port);
     }
     else
-        return sockError::addrError;
+        return sock_error::addr_error;
 
     int r = bind(m_socket, (LPSOCKADDR)addr, sizeof(SOCKADDR_IN));
     if (SOCKET_ERROR == r)
     {
         closesocket(m_socket);   //关闭套接字
         WSACleanup();            //释放套接字资源;
-        return sockError::bindError;
+        return sock_error::bind_error;
     }
 
     r = listen(m_socket, 1);
@@ -52,11 +52,11 @@ int winServer::initServer()
     {
         closesocket(m_socket);   //关闭套接字
         WSACleanup();            //释放套接字资源;
-        return sockError::listenError;
+        return sock_error::listen_error;
     }
 
     std::shared_ptr<std::thread> t(new std::thread([&] {
-        while (s_bAcceptThread)
+        while (s_baccept_thread)
         {
             SOCKET sClient = INVALID_SOCKET;
             sockaddr_in addrClient;
@@ -69,16 +69,16 @@ int winServer::initServer()
                 WSACleanup();            //释放套接字资源;
                 break;
             }
-            if(s_bAcceptThread)
-                processAccept(sClient, m_process);
+            if(s_baccept_thread)
+                process_accept(sClient, m_process);
         }
     }));
     
     t->detach();
 
-    return sockError::success;
+    return sock_error::success;
 }
-void winServer::processAccept(mSOCKET clientSock, process pro)
+void win_server::process_accept(mSOCKET clientSock, process pro)
 {
     std::shared_ptr<std::thread> s(new std::thread([&] {
         process tmpPro = pro;

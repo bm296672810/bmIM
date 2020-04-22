@@ -1,5 +1,5 @@
 # 项目信息 项目名
-set(PROJECT_NAME bmServer)
+set(PROJECT_NAME bm_server)
 
 project (${PROJECT_NAME})
 # 查找当前目录下的所有源文件
@@ -46,7 +46,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../libJson
 "${MYSQL_ROOT_PATH}/include"
 )
 # 添加链接库
-target_link_libraries(${PROJECT_NAME} libNetwork libOpenssl libSql libJson)
+target_link_libraries(${PROJECT_NAME} lib_network lib_openssl lib_sql lib_json)
 
 if(MSVC)
   # Force to always compile with W4

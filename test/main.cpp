@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     string ip = "192.168.2.175";
     int port = 10011;
 
-    server* s = new winServer();
+    server* s = new win_server();
     
     //bm::sql::mysql::SqlOperate op("bm", "bm12345", "192.168.183.129");
     bm::sql::SqlResult result;

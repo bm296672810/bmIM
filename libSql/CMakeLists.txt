@@ -1,5 +1,6 @@
 # 项目信息
-project (libSql)
+set(project_name lib_sql)
+project (${project_name})
 # 查找当前目录下的所有源文件
 
 FILE (GLOB ALL_SOURCES "*.cpp" "*.c" "sqlite/*.c" "sqlite/*.cpp" "mysql/*.cpp" )
@@ -28,5 +29,5 @@ ENDIF(CMAKE_CL_64)
 
 include_directories("${MYSQL_ROOT_PATH}/include")
 # 指定生成目标 
-add_library(libSql ${ALL_FILES})
-target_link_libraries(libSql ${RELAY_LIBS})
+add_library(${project_name} ${ALL_FILES})
+target_link_libraries(${project_name} ${RELAY_LIBS})

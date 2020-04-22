@@ -1,5 +1,6 @@
 # 项目信息
-project (libNetwork)
+set(project_name lib_network)
+project (${project_name})
 # 查找当前目录下的所有源文件
 # 并将名称保存到 DIR_SRCS 变量
 # aux_source_directory(. DIR_SRCS)
@@ -22,9 +23,9 @@ ELSE(CMAKE_CL_64)
 ENDIF(CMAKE_CL_64)
 
 # 指定生成目标 
-add_library(libNetwork ${DIR_SRCS} ${ALL_SOURCES})
+add_library(${project_name} ${DIR_SRCS} ${ALL_SOURCES})
 
-target_link_libraries(libNetwork ${RELAY_LIBS})
+target_link_libraries(${project_name} ${RELAY_LIBS})
 #target_link_libraries(libSql RELAY_LIBS libFins)
 if(MSVC)
   # Force to always compile with W4

@@ -3,14 +3,14 @@
 #include "client.h"
 #include "server.h"
 
-#include "libOpenssl.h"
+#include "lib_openssl.h"
 #include "json.h"
 
 namespace bm
 {
 namespace connect
 {
-    enum paramType
+    enum param_type
     {
         _BOOL,
         _CHAR,
@@ -26,22 +26,22 @@ namespace connect
         _STRING,
         _UNKNOW
     };
-    struct funcParam
+    struct func_param
     {
-        paramType pt = _UNKNOW; // 参数类型
+        param_type pt = _UNKNOW; // 参数类型
         string pd = "";         // 参数数据
     };
-    struct funcData
+    struct func_data
     {
-        string funcName;
-        int parmNum = 0;
-        vector<funcParam> vParams;
-        int funcCall();
+        string func_name;
+        int parm_num = 0;
+        vector<func_param> vParams;
+        int func_call();
     };
     void decrypt(const string& from, string& to);
     void encrypt(const string& from, string& to);
-    void acceptSock(const string& data, mSOCKET s);
-    void pareJson(const Json::Value& root, funcData& fd);
+    void accept_sock(const string& data, mSOCKET s);
+    void pare_json(const Json::Value& root, func_data& fd);
 
 }
 }

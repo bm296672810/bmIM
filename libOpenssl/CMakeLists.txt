@@ -1,7 +1,10 @@
-project (libOpenssl)
+set(procect_name lib_openssl)
+project (${procect_name})
 
-aux_source_directory(. DIR_SRCS)
-add_library(libOpenssl ${DIR_SRCS})
+FILE (GLOB ALL_SOURCES "*.cpp" "*.c" )
+FILE (GLOB ALL_INCLUDES "*.hpp" "*.h" )
+# aux_source_directory(. DIR_SRCS)
+add_library(${procect_name} ${ALL_INCLUDES} ${ALL_SOURCES})
 
 include_directories(
 ${CMAKE_CURRENT_SOURCE_DIR}/include

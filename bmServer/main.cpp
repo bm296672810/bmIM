@@ -1,11 +1,11 @@
 #include <iostream>
 #include <fstream>
 
-#include "libOpenssl.h"
+#include "lib_openssl.h"
 #include "client.h"
 #include "server.h"
-#include "libSql.h"
-#include "sql/dataOperate.h"
+#include "lib_sql.h"
+#include "sql/data_operate.h"
 #include "connect/connect.h"
 
 #ifndef M_SLEEP
@@ -19,11 +19,11 @@ using namespace std;
 bool sendData(const string& ip, int port, const string& data)
 {
     string toEncrypt;
-    int r = bm::encryptRSA(data, toEncrypt, "public.key");
+    int r = bm::encrypt_RSA(data, toEncrypt, "public.key", true);
     cout << r << endl;
 
     string toBase64;
-    r = bm::encryptBase64(toEncrypt, toBase64, false);
+    r = bm::encrypt_base64(toEncrypt, toBase64, false);
     cout << r << endl;
 
     Client c(ip, port);
@@ -46,8 +46,8 @@ int main(int argc, char *argv[])
     
     //string id;
     //int r = bm::data::createUser("17665319088", "name1", "bm1", "bm12345", id);
-    server* s = new winServer();
-    s->initProcess(bm::connect::acceptSock);
+    server* s = new win_server();
+    s->init_process(bm::connect::accept_sock);
     string from, to, dto;
     std::fstream f("functionData.txt");
     std::istreambuf_iterator<char> beg(f), end;
