@@ -2,52 +2,36 @@
 #define __CLIENT_H__
 #include "socket.h"
 
-class Client {
+class client {
 public:
-    Client(const string& ip, int port);
-    int Send(const string& data);
-    int Recv(string& data);
-    bool ReadData(unsigned char *recvData, int readLength, int *resLength);
+    client(const string& ip, int port);
+    int send(const string& data);
+    int recv(string& data);
+    bool read_data(unsigned char *recvData, int *resLength);
 
-    bool IsConnected() { return m_bIsConnected; }
-    void SetConnected(bool con) { m_bIsConnected = con; }
-    bool GetConnectStatus() { return m_bIsConnected; }
+    bool is_connected() { return m_b_is_connected; }
+    void set_connected(bool con) { m_b_is_connected = con; }
+    bool get_connect_status() { return m_b_is_connected; }
 
-    bool Connect();
-    bool DisConnect();
+    bool connect();
+    bool dis_connect();
 
-    void SetTimeOut(int readTimeOut, int writeTimeOut);
+    void set_timeout(int readTimeOut, int writeTimeOut);
 
-    ~Client();
+    ~client();
 private:
-    int socketTcpAlive(SOCKET socket);
-    SOCKET tcpConnectServer();
-    void InitSocket(const string& ip, int port);
+    int socket_tcp_alive(SOCKET socket);
+    SOCKET tcp_connect_server();
+    void init_socket(const string& ip, int port);
 private:
     SOCKET m_socket;
     Address* m_address;
-    bool m_bIsConnected = false;
+    bool m_b_is_connected = false;
 
-    int m_nReadTimeOut = 2000;
-    int m_nWriteTimeOut = 2000;
+    int m_n_read_timeout = 2000;
+    int m_n_write_timeout = 2000;
 
-    int connectStatus = -1;
+    int connect_status = -1;
 };
 
-namespace udp {
-    SOCKET _udpClientInit(const char* ip, int port, sockaddr** addr);
-    void _udpSocketClose(SOCKET socket);
-    SOCKET _udpServerInit(const char* ip, int port, sockaddr** addr);
-    int _udpSend(const char* ip, int port, const char* bufSend);
-    int _udpRecv(const char* ip, int port, char** result);
-
-    double refitySendData(const string& ip, int port, const string& currentIp, int currentPort, bool* isConnect);
-	bool refitySetGuideManualData(const string& ip, int port);
-	bool refitySetGuideAutoData(const string& ip, int port);
-	bool refitySetGuideCenterData(const string& ip, int port);
-  
-	bool SendToSetGuideManual(const string& ip, int port);
-	bool SendToSetGuideAuto(const string& ip, int port);
-	bool SendToSetGuideCenter(const string& ip, int port);
-}
 #endif

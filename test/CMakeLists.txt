@@ -39,7 +39,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../libSql
 "${MYSQL_ROOT_PATH}/include"
 )
 # 添加链接库
-target_link_libraries(test libNetwork libOpenssl libSql)
+target_link_libraries(test lib_network lib_openssl lib_sql)
 
 if(MSVC)
   # Force to always compile with W4
@@ -53,7 +53,9 @@ if(MSVC)
 		ADD_DEFINITIONS(-D_AFXDLL)#如果使用动态库的MFC，则加上_AFXDLL
 	endif(IMPORT_DLL)
 	#SET(CMAKE_MFC_FLAG 1)
-	SET(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} "/NODEFAULTLIBS:MSVCRT /NODEFAULTLIBS:MSVCRTD")
+	SET(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} "/NODEFAULTLIBS:MSVCRTD")
+	SET(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} "/NODEFAULTLIBS:MSVCRT")
+	ADD_DEFINITIONS(-DNODEFAULTLIB:library)
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
   # Update if necessary
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")

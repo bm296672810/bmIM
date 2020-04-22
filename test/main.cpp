@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include "libOpenssl.h"
+#include "lib_openssl.h"
 #include "client.h"
 #include "server.h"
-#include "libSql.h"
+#include "lib_sql.h"
 
 #ifndef M_SLEEP
 #include <thread>
@@ -13,21 +13,21 @@
 #endif
 #pragma comment(lib, "ws2_32.lib")
 using namespace std;
-bool sendData(const string& ip, int port, const string& data)
+bool send_data(const string& ip, int port, const string& data)
 {
     string toEncrypt;
-    int r = bm::encryptRSA(data, toEncrypt, "public.key");
+    int r = bm::encrypt_RSA(data, toEncrypt, "public.key", true);
     cout << r << endl;
 
     string toBase64;
-    r = bm::encryptBase64(toEncrypt, toBase64, false);
+    r = bm::encrypt_base64(toEncrypt, toBase64, false);
     cout << r << endl;
 
-    Client c(ip, port);
-    c.Connect();
-    if (c.IsConnected())
+    client c(ip, port);
+    c.connect();
+    if (c.is_connected())
     {
-        if (c.Send(toBase64) != toBase64.length())
+        if (c.send(toBase64) != toBase64.length())
             return false;
     }
     else
@@ -42,9 +42,9 @@ int main(int argc, char *argv[])
     string toBase64, toSource, to;
 
     toBase64 = "Bzld+VONPDNV7GjcFss24K9zWiarJG4+WqKSkT+3CSNL3XTBQN2IBr6cv8pr9d/WlJaaz7ugyYyZv1SG0U8BEBYNw+1ztjZZd8ZR8Dz7HMvb4tdma7O9Zu+gI10cCzy6Jwy4ll2n6IV2dfKAva5MivLAK4pvEUIMUIGuUFul32E=";
-    int r = bm::decryptBase64(toBase64, toSource, false);
+    int r = bm::decrypt_base64(toBase64, toSource, false);
 
-    r = bm::decryptRSA(toSource, to, "private.key");
+    r = bm::decrypt_RSA(toSource, to, "private.key", false);
 
     string ip = "192.168.2.175";
     int port = 10011;

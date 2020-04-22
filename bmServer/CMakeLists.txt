@@ -33,9 +33,6 @@ link_libraries(${LIBS})
 # 指定生成目标 
 add_executable(${PROJECT_NAME} ${ALL_FILES})
 
-#FIND_LIBRARY(COMM_LIB "${CMAKE_CURRENT_SOURCE_DIR}/../libSql/lib/${platform}/Debug" NO_DEFAULT_PATH)
-#message(${COMM_LIB})
-#message("type:${CMAKE_BUILD_TYPE}")
 include_directories(
 ${CMAKE_CURRENT_SOURCE_DIR}
 ${CMAKE_CURRENT_SOURCE_DIR}/../libNetwork
@@ -47,7 +44,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../libJson
 )
 # 添加链接库
 target_link_libraries(${PROJECT_NAME} lib_network lib_openssl lib_sql lib_json)
-
 if(MSVC)
   # Force to always compile with W4
 	if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
@@ -60,7 +56,8 @@ if(MSVC)
 		ADD_DEFINITIONS(-D_AFXDLL)#如果使用动态库的MFC，则加上_AFXDLL
 	endif(IMPORT_DLL)
 	#SET(CMAKE_MFC_FLAG 1)
-	SET(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} "/NODEFAULTLIBS:MSVCRT /NODEFAULTLIBS:MSVCRTD")
+	# 自定义编译规则
+	set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:MSVCRT")
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
   # Update if necessary
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")

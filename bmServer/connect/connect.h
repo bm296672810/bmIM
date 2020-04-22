@@ -10,7 +10,7 @@ namespace bm
 {
 namespace connect
 {
-    enum param_type
+    enum class param_type
     {
         _BOOL,
         _CHAR,
@@ -28,7 +28,7 @@ namespace connect
     };
     struct func_param
     {
-        param_type pt = _UNKNOW; // 参数类型
+        param_type pt = param_type::_UNKNOW; // 参数类型
         string pd = "";         // 参数数据
     };
     struct func_data

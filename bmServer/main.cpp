@@ -14,9 +14,13 @@
 #define M_SLEEP(t) std::this_thread::sleep_for(std::chrono::milliseconds(t))
 #define U_SLEEP(t) std::this_thread::sleep_for(std::chrono::microseconds(t))
 #endif
+
+#ifdef _WIN32
 #pragma comment(lib, "ws2_32.lib")
+#endif
+
 using namespace std;
-bool sendData(const string& ip, int port, const string& data)
+bool send_data(const string& ip, int port, const string& data)
 {
     string toEncrypt;
     int r = bm::encrypt_RSA(data, toEncrypt, "public.key", true);
@@ -26,11 +30,11 @@ bool sendData(const string& ip, int port, const string& data)
     r = bm::encrypt_base64(toEncrypt, toBase64, false);
     cout << r << endl;
 
-    Client c(ip, port);
-    c.Connect();
-    if (c.IsConnected())
+    client c(ip, port);
+    c.connect();
+    if (c.is_connected())
     {
-        if (c.Send(toBase64) != toBase64.length())
+        if (c.send(toBase64) != toBase64.length())
             return false;
     }
     else
