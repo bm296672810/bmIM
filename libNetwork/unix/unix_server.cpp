@@ -8,6 +8,7 @@
 #include<sys/types.h>
 #include<sys/socket.h>
 #include<netinet/in.h>
+#include <memory.h>
 
 typedef int SOCKET;
 #endif
@@ -25,7 +26,7 @@ int unix_server::init_server()
     struct sockaddr_in     servaddr;
 
     if ((m_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        printf("create socket error: %s(errno: %d)\n", strerror(errno), errno);
+        //printf("create socket error: %s(errno: %d)\n", strerror(errno), errno);
         return sock_error::createSocket_error;
     }
 
@@ -35,12 +36,12 @@ int unix_server::init_server()
     servaddr.sin_port = htons(m_port);
 
     if (bind(listenfd, (struct sockaddr*) & servaddr, sizeof(servaddr)) == -1) {
-        printf("bind socket error: %s(errno: %d)\n", strerror(errno), errno);
+        //printf("bind socket error: %s(errno: %d)\n", strerror(errno), errno);
         return sock_error::bind_error;
     }
 
     if (listen(listenfd, 10) == -1) {
-        printf("listen socket error: %s(errno: %d)\n", strerror(errno), errno);
+        //printf("listen socket error: %s(errno: %d)\n", strerror(errno), errno);
         return sock_error::listen_error;
     }
 
@@ -55,7 +56,7 @@ int unix_server::init_server()
 
             sockaddr_in addrClient;
             int addrClientlen = sizeof(addrClient);
-            sClient = accept(m_socket, (sockaddr FAR*) & addrClient, &addrClientlen);
+            sClient = accept(m_socket, (sockaddr *) &addrClient, &addrClientlen);
             std::cout << "accept:" << sClient << std::endl;
 #ifdef _WIN32
             if (INVALID_SOCKET == sClient)
