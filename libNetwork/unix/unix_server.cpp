@@ -47,12 +47,21 @@ int unix_server::init_server()
     std::shared_ptr<std::thread> t(new std::thread([&] {
         while (s_baccept_thread)
         {
+#ifdef _WIN32
             SOCKET sClient = INVALID_SOCKET;
+#elif linux
+            SOCKET sClient = -1;
+#endif // _WIN32
+
             sockaddr_in addrClient;
             int addrClientlen = sizeof(addrClient);
             sClient = accept(m_socket, (sockaddr FAR*) & addrClient, &addrClientlen);
             std::cout << "accept:" << sClient << std::endl;
+#ifdef _WIN32
             if (INVALID_SOCKET == sClient)
+#elif linux
+            if(-1 == sClient)
+#endif
             {
 
                 break;
