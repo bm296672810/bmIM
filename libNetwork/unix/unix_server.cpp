@@ -4,8 +4,9 @@
 #include <string>
 #include <iostream>
 
-#include <WinSock2.h>
-#include<Ws2tcpip.h>
+#include<sys/types.h>
+#include<sys/socket.h>
+#include<netinet/in.h>
 
 unix_server::~unix_server()
 {
