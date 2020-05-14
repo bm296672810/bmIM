@@ -5,8 +5,8 @@
 class unix_server : public server
 {
 public:
-    win_server() { init_server(); }
-    ~win_server();
+    unix_server() { init_server(); }
+    ~unix_server();
 protected:
     virtual int init_server();
     virtual void process_accept(mSOCKET clientSock, process pro);

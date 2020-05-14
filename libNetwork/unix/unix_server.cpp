@@ -7,14 +7,14 @@
 #include <WinSock2.h>
 #include<Ws2tcpip.h>
 
-win_server::~win_server()
+unix_server::~unix_server()
 {
     s_baccept_thread = false;
 
-    closesocket(m_socket);   //关闭套接字
-    WSACleanup();            //释放套接字资源;
+    //closesocket(m_socket);   //关闭套接字
+    //WSACleanup();            //释放套接字资源;
 }
-int win_server::init_server()
+int unix_server::init_server()
 {
     //int    listenfd, connfd;
     struct sockaddr_in     servaddr;
@@ -40,43 +40,6 @@ int win_server::init_server()
         printf("listen socket error: %s(errno: %d)\n", strerror(errno), errno);
         return sock_error::listen_error;
     }
-    //WSADATA wsd;
-    //if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0)
-    //    return sock_error::init_error;
-
-    //m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    //if (INVALID_SOCKET == m_socket)
-    //{
-    //    WSACleanup();//释放套接字资源;
-    //    return sock_error::createSocket_error;
-    //}
-
-    //struct sockaddr_in* addr = (struct sockaddr_in*) malloc(sizeof(struct sockaddr_in));
-    //if (addr)
-    //{
-    //    addr->sin_family = AF_INET;
-    //    addr->sin_addr.S_un.S_addr = INADDR_ANY;
-    //    //inet_pton(addr->sin_family, INADDR_ANY, &(addr->sin_addr.S_un.S_addr));
-    //    addr->sin_port = htons((unsigned short)m_port);
-    //}
-    //else
-    //    return sock_error::addr_error;
-
-    //int r = bind(m_socket, (LPSOCKADDR)addr, sizeof(SOCKADDR_IN));
-    //if (SOCKET_ERROR == r)
-    //{
-    //    closesocket(m_socket);   //关闭套接字
-    //    WSACleanup();            //释放套接字资源;
-    //    return sock_error::bind_error;
-    //}
-
-    //r = listen(m_socket, 1);
-    //if (SOCKET_ERROR == r)
-    //{
-    //    closesocket(m_socket);   //关闭套接字
-    //    WSACleanup();            //释放套接字资源;
-    //    return sock_error::listen_error;
-    //}
 
     std::shared_ptr<std::thread> t(new std::thread([&] {
         while (s_baccept_thread)
@@ -100,7 +63,7 @@ int win_server::init_server()
 
     return sock_error::success;
 }
-void win_server::process_accept(mSOCKET clientSock, process pro)
+void unix_server::process_accept(mSOCKET clientSock, process pro)
 {
     std::shared_ptr<std::thread> s(new std::thread([&] {
         process tmpPro = pro;
