@@ -19,8 +19,6 @@ int unix_server::init_server()
 {
     //int    listenfd, connfd;
     struct sockaddr_in     servaddr;
-    char    buff[4096];
-    int     n;
 
     if ((m_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         printf("create socket error: %s(errno: %d)\n", strerror(errno), errno);

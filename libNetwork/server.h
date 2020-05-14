@@ -5,13 +5,13 @@
 
 #define BUF_SIZE 1024
 #ifdef _WIN32
-typedef unsigned long long mSOCKET;
+
 #elif APPLE
 #include "mac/macServer.h"
 elif linux
 #include "unix/unixServer.h"
 #endif
-
+typedef unsigned long long mSOCKET;
 enum sock_error
 {
     accept_error         = -7,
