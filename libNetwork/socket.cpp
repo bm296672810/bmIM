@@ -8,8 +8,11 @@ struct sockaddr_in* to_sockaddr(Address* a)
     {
 
         ret->sin_family = AF_INET;
-
+#ifdef _WIN32
         inet_pton(ret->sin_family, a->m_strIp.c_str(), &(ret->sin_addr.S_un.S_addr));
+#elif linux
+        inet_pton(ret->sin_family, a->m_strIp.c_str(), &(ret->sin_addr));
+#endif
         ret->sin_port = htons((unsigned short)a->m_iPort);
     }
 
