@@ -2,7 +2,8 @@
 #include <fstream>
 
 #include "lib_openssl.h"
-#include "client.h"
+//#include "client.h"
+#include "socket.h"
 #include "server.h"
 #include "lib_sql.h"
 #include "sql/data_operate.h"
@@ -20,28 +21,28 @@
 #endif
 
 using namespace std;
-bool send_data(const string& ip, int port, const string& data)
-{
-    string toEncrypt;
-    int r = bm::encrypt_RSA(data, toEncrypt, "public.key", true);
-    cout << r << endl;
-
-    string toBase64;
-    r = bm::encrypt_base64(toEncrypt, toBase64, false);
-    cout << r << endl;
-
-    client c(ip, port);
-    c.connect();
-    if (c.is_connected())
-    {
-        if (c.send(toBase64) != toBase64.length())
-            return false;
-    }
-    else
-        return false;
-
-    return true;
-}
+//bool send_data(const string& ip, int port, const string& data)
+//{
+//    string toEncrypt;
+//    int r = bm::encrypt_RSA(data, toEncrypt, "public.key", true);
+//    cout << r << endl;
+//
+//    string toBase64;
+//    r = bm::encrypt_base64(toEncrypt, toBase64, false);
+//    cout << r << endl;
+//
+//    client c(ip, port);
+//    c.connect();
+//    if (c.is_connected())
+//    {
+//        if (c.send(toBase64) != toBase64.length())
+//            return false;
+//    }
+//    else
+//        return false;
+//
+//    return true;
+//}
 
 int main(int argc, char *argv[])
 {
@@ -50,7 +51,12 @@ int main(int argc, char *argv[])
     
     //string id;
     //int r = bm::data::createUser("17665319088", "name1", "bm1", "bm12345", id);
-    server* s = new win_server();
+    server* s = NULL;
+#ifdef _WIN32
+    s = new win_server();
+#elif linux
+    s = new unix_server();
+#endif
     s->init_process(bm::connect::accept_sock);
     string from, to, dto;
     std::fstream f("functionData.txt");

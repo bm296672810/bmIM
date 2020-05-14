@@ -1,11 +1,12 @@
 #ifndef __CONNECT_H__
 #define __CONNECT_H__
-#include "client.h"
+//#include "client.h"
+#include <string>
 #include "server.h"
 
 #include "lib_openssl.h"
 #include "json.h"
-
+using namespace std;
 namespace bm
 {
 namespace connect
