@@ -22,7 +22,7 @@ unix_server::~unix_server()
 }
 int unix_server::init_server()
 {
-    //int    listenfd, connfd;
+    int    listenfd;
     struct sockaddr_in     servaddr;
 
     if ((m_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
@@ -55,7 +55,7 @@ int unix_server::init_server()
 #endif // _WIN32
 
             sockaddr_in addrClient;
-            int addrClientlen = sizeof(addrClient);
+            socklen_t addrClientlen = sizeof(addrClient);
             sClient = accept(m_socket, (sockaddr *) &addrClient, &addrClientlen);
             std::cout << "accept:" << sClient << std::endl;
 #ifdef _WIN32
