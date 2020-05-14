@@ -6,7 +6,8 @@
 #   include <winsock2.h>
 #   include<Ws2tcpip.h>
 #include <mstcpip.h>
-#else
+#elif linux
+#   include <sys/socket.h>
 #   include <netinet/in.h>
 #   include<arpa/inet.h>
 #endif
